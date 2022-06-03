@@ -3,10 +3,20 @@
 #include "d3d10device.h"
 
 #include "../imgui/imgui.h"
+#include "../imgui/examples/imgui_impl_win32.h"
 #include "../imgui/examples/imgui_impl_dx10.h"
 
 #define TEXT_DURATION 20
+LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
+LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
+{
+    if (ImGui_ImplWin32_WndProcHandler(hWnd, msg, wParam, lParam))
+        return true;
+
+    return ::DefWindowProc(hWnd, msg, wParam, lParam);
+}
 namespace {
 
 cs_wrapper gui_cs;
@@ -96,6 +106,7 @@ class Overlay::Impl {
         imgui_context = ImGui::CreateContext();
         io = &ImGui::GetIO();
         io->IniFilename = NULL;
+        ImGui_ImplWin32_Init(hwnd);
         ImGui_ImplDX10_Init(pDevice->get_inner());
         ImGui::StyleColorsClassic();
         ImGuiStyle *style = &ImGui::GetStyle();
@@ -105,6 +116,8 @@ class Overlay::Impl {
             pSwapChainDesc->BufferDesc.Height
         ));
 
+        SetWindowLongPtr(pSwapChainDesc->OutputWindow, GWLP_WNDPROC, (LONG_PTR)WndProc);
+        
         create_render_target();
     }
 
@@ -112,6 +125,7 @@ class Overlay::Impl {
         cleanup_render_target();
 
         set_display_size({});
+        ImGui_ImplWin32_Shutdown();
         ImGui_ImplDX10_Shutdown();
         io = NULL;
         if (imgui_context) {
@@ -178,6 +192,7 @@ class Overlay::Impl {
 
         ImGui::SetCurrentContext(imgui_context);
         ImGui_ImplDX10_NewFrame();
+        ImGui_ImplWin32_NewFrame();
 
         if (!time || hwnd != GetForegroundWindow()) {
             reset_texts_timings();
@@ -194,23 +209,27 @@ class Overlay::Impl {
         ImGui::NewFrame();
         ImGui::SetNextWindowPos(ImVec2(0, 0));
         ImGui::SetNextWindowSize(ImVec2(0, 0));
-        ImGui::Begin(
-            "Overlay",
-            NULL,
-            ImGuiWindowFlags_NoTitleBar
-        );
-        while (
-            texts.size() &&
-            texts.front().time &&
-            time - texts.front().time > ticks_per_second * TEXT_DURATION
-        ) {
-            texts.pop_front();
-        }
-        for (Text &text : texts) {
-            if (!text.time) text.time = time;
-            ImGui::TextUnformatted(text.text.c_str());
-        }
-        ImGui::End();
+
+        bool demo = true;
+        ImGui::ShowDemoWindow(&demo);
+
+        // ImGui::Begin(
+        //     "Overlay",
+        //     NULL,
+        //     ImGuiWindowFlags_NoTitleBar
+        // );
+        // while (
+        //     texts.size() &&
+        //     texts.front().time &&
+        //     time - texts.front().time > ticks_per_second * TEXT_DURATION
+        // ) {
+        //     texts.pop_front();
+        // }
+        // for (Text &text : texts) {
+        //     if (!text.time) text.time = time;
+        //     ImGui::TextUnformatted(text.text.c_str());
+        // }
+        // ImGui::End();
         ImGui::Render();
         pDevice->get_inner()->OMSetRenderTargets(1, &rtv, NULL);
         ImGui_ImplDX10_RenderDrawData(ImGui::GetDrawData());

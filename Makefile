@@ -14,7 +14,7 @@ HLSLcc_dir := $(sort $(dir $(HLSLcc_obj)))
 cbstring_src := $(wildcard HLSLcc/src/cbstring/*.c)
 cbstring_obj := $(cbstring_src:HLSLcc/src/cbstring/%.c=obj/cbstring/%.o)
 cbstring_dir := $(sort $(dir $(cbstring_obj)))
-imgui_src := $(wildcard imgui/*.cpp) imgui/examples/imgui_impl_dx10.cpp
+imgui_src := $(wildcard imgui/*.cpp) imgui/examples/imgui_impl_dx10.cpp imgui/examples/imgui_impl_win32.cpp
 imgui_obj := $(imgui_src:imgui/%.cpp=obj/imgui/%.o)
 imgui_dir := $(sort $(dir $(imgui_obj)))
 minhook_src := $(wildcard minhook/src/*.c minhook/src/hde/*.c)
@@ -90,7 +90,7 @@ $(dll_dbg): $(dll)
 	$(cross_prefix)objcopy --only-keep-debug $< $@
 
 $(dll): $(obj_all) dinput8.def
-	$(cxx) $(color_opt) -o $(output_dir)/$@ $+ $(dbg_opt) $(lto_opt) -shared -static -Werror -Wno-odr -Wno-lto-type-mismatch -Wl,--enable-stdcall-fixup -ld3dcompiler_47 -luuid -lmsimg32 -lhid -lsetupapi -lgdi32 -lcomdlg32 -ldinput8 -lole32 -ldxguid
+	$(cxx) $(color_opt) -o $(output_dir)/$@ $+ $(dbg_opt) $(lto_opt) -shared -static -Werror -Wno-odr -Wno-lto-type-mismatch -Wl,--enable-stdcall-fixup -ld3dcompiler_47 -luuid -lmsimg32 -lhid -lsetupapi -lgdi32 -lcomdlg32 -ldinput8 -lole32 -ldxguid -lxinput
 
 $(retroarch_ln): RetroArch/%: RetroArch/RetroArch/%
 	ln -sr $< $@
@@ -111,7 +111,7 @@ $(retroarch_mod_sen): RetroArch/gfx/drivers_shader/slang_reflection.diff | $(ret
 	touch $@
 
 obj/%.o: src/%.cpp | $(dir)
-	$(cxx_all) -Werror -Wall $(retroarch_flg) -IRetroArch/RetroArch/gfx/common
+	$(cxx_all) -Werror -Wall $(retroarch_flg) -IRetroArch/RetroArch/gfx/common -Iimgui
 	
 obj/src/editor/%.o: src/editor/%.cpp | $(editor_dir)
 	$(cxx_all)
