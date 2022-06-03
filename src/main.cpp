@@ -6,6 +6,8 @@ bool _tstring_view_icmp::operator()(const _tstring_view &a, const _tstring_view 
     return ret < 0;
 }
 
+#include "editor/editor.h"
+
 #include "dinput8_dll.h"
 #include "overlay.h"
 #include "conf.h"
@@ -43,6 +45,8 @@ BOOL WINAPI DllMain(
             default_logger->set_config(default_config);
 
             base_dll_init(hinstDLL);
+
+            editor::Init(default_overlay);
             break;
         }
 

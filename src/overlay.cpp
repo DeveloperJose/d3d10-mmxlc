@@ -5,7 +5,7 @@
 #include "../imgui/imgui.h"
 #include "../imgui/examples/imgui_impl_dx10.h"
 
-#define TEXT_DURATION 2.5
+#define TEXT_DURATION 20
 
 namespace {
 

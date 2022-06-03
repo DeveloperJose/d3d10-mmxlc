@@ -37,8 +37,14 @@ retroarch_cxx = $(cxx) $(color_opt) -c -MMD -MP -o $@ $< -std=c++17 $(dbg_opt) $
 src := $(wildcard src/*.cpp)
 obj := $(src:src/%.cpp=obj/%.o)
 dir := $(sort $(dir $(obj)))
+
+editor_src := $(wildcard src/editor/*.cpp)
+editor_obj := $(editor_src:src/editor/%.cpp=obj/src/editor/%.o)
+editor_dir := $(sort $(dir $(editor_obj)))
+output_dir := C:/PROGRA~2/Steam/STEAMA~1/common/MEGAMA~1
+
 cxx_all = $(cxx) $(color_opt) -c -MMD -MP -o $@ $< -std=c++17 $(dbg_opt) $(lto_opt)
-obj_all := $(obj) $(smhasher_obj) $(HLSLcc_obj) $(cbstring_obj) $(imgui_obj) $(minhook_obj) $(spirv_obj) $(glslang_obj) $(retroarch_obj)
+obj_all := $(obj) $(editor_obj) $(smhasher_obj) $(HLSLcc_obj) $(cbstring_obj) $(imgui_obj) $(minhook_obj) $(spirv_obj) $(glslang_obj) $(retroarch_obj)
 dir_all := $(sort $(dir $(obj_all)))
 dep_all := $(obj_all:%.o=%.d)
 dll := dinput8.dll
@@ -84,7 +90,7 @@ $(dll_dbg): $(dll)
 	$(cross_prefix)objcopy --only-keep-debug $< $@
 
 $(dll): $(obj_all) dinput8.def
-	$(cxx) $(color_opt) -o $@ $+ $(dbg_opt) $(lto_opt) -shared -static -Werror -Wno-odr -Wno-lto-type-mismatch -Wl,--enable-stdcall-fixup -ld3dcompiler_47 -luuid -lmsimg32 -lhid -lsetupapi -lgdi32 -lcomdlg32 -ldinput8 -lole32 -ldxguid
+	$(cxx) $(color_opt) -o $(output_dir)/$@ $+ $(dbg_opt) $(lto_opt) -shared -static -Werror -Wno-odr -Wno-lto-type-mismatch -Wl,--enable-stdcall-fixup -ld3dcompiler_47 -luuid -lmsimg32 -lhid -lsetupapi -lgdi32 -lcomdlg32 -ldinput8 -lole32 -ldxguid
 
 $(retroarch_ln): RetroArch/%: RetroArch/RetroArch/%
 	ln -sr $< $@
@@ -106,6 +112,9 @@ $(retroarch_mod_sen): RetroArch/gfx/drivers_shader/slang_reflection.diff | $(ret
 
 obj/%.o: src/%.cpp | $(dir)
 	$(cxx_all) -Werror -Wall $(retroarch_flg) -IRetroArch/RetroArch/gfx/common
+	
+obj/src/editor/%.o: src/editor/%.cpp | $(editor_dir)
+	$(cxx_all)
 
 obj/smhasher/%.o: smhasher/%.cpp | $(smhasher_dir)
 	$(cxx_all)
