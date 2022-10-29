@@ -6,6 +6,8 @@
 #include "../imgui/examples/imgui_impl_win32.h"
 #include "../imgui/examples/imgui_impl_dx10.h"
 
+#include "editor/editor.h"
+
 #define TEXT_DURATION 20
 LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
@@ -106,6 +108,7 @@ class Overlay::Impl {
         imgui_context = ImGui::CreateContext();
         io = &ImGui::GetIO();
         io->IniFilename = NULL;
+        io->WantCaptureKeyboard = true;
         ImGui_ImplWin32_Init(hwnd);
         ImGui_ImplDX10_Init(pDevice->get_inner());
         ImGui::StyleColorsClassic();
@@ -213,6 +216,9 @@ class Overlay::Impl {
         bool demo = true;
         ImGui::ShowDemoWindow(&demo);
 
+        if (GetAsyncKeyState(VK_F8) & 1) {
+            
+        }
         // ImGui::Begin(
         //     "Overlay",
         //     NULL,

@@ -1,10 +1,11 @@
 ifeq ($(OS),Windows_NT)
-	cross_prefix :=
+	cross_prefix := 
 else
 	cross_prefix := i686-w64-mingw32-
 endif
 cc := $(cross_prefix)gcc
 cxx := $(cross_prefix)g++
+
 smhasher_src := smhasher/MurmurHash3.cpp
 smhasher_obj := $(smhasher_src:smhasher/%.cpp=obj/smhasher/%.o)
 smhasher_dir := $(sort $(dir $(smhasher_obj)))
@@ -39,7 +40,7 @@ obj := $(src:src/%.cpp=obj/%.o)
 dir := $(sort $(dir $(obj)))
 
 editor_src := $(wildcard src/editor/*.cpp)
-editor_obj := $(editor_src:src/editor/%.cpp=obj/src/editor/%.o)
+editor_obj := $(editor_src:src/editor/%.cpp=obj/editor/%.o)
 editor_dir := $(sort $(dir $(editor_obj)))
 output_dir := C:/PROGRA~2/Steam/STEAMA~1/common/MEGAMA~1
 
@@ -113,8 +114,8 @@ $(retroarch_mod_sen): RetroArch/gfx/drivers_shader/slang_reflection.diff | $(ret
 obj/%.o: src/%.cpp | $(dir)
 	$(cxx_all) -Werror -Wall $(retroarch_flg) -IRetroArch/RetroArch/gfx/common -Iimgui
 	
-obj/src/editor/%.o: src/editor/%.cpp | $(editor_dir)
-	$(cxx_all)
+obj/editor/%.o: src/editor/%.cpp | $(editor_dir)
+	$(cxx_all) -ffixed-esi
 
 obj/smhasher/%.o: smhasher/%.cpp | $(smhasher_dir)
 	$(cxx_all)

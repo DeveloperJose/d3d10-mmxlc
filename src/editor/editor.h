@@ -4,6 +4,7 @@
 #include "../overlay.h"
 namespace editor {
     void Init(Overlay* overlay);
+    void Shutdown();
 }
 
 #endif

@@ -72,6 +72,7 @@ BOOL WINAPI DllMain(
             delete default_overlay;
 
             my_config_free();
+            editor::Shutdown();
             break;
         }
     }
